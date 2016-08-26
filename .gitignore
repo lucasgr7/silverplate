@@ -20,11 +20,10 @@ lib64/
 parts/
 sdist/
 var/
-migrations/
 *.egg-info/
 .installed.cfg
 *.egg
-*.sqlite3
+*.sqlite*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -81,6 +80,7 @@ celerybeat-schedule
 .env
 
 # virtualenv
+.venv/
 venv/
 ENV/
 
@@ -89,3 +89,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Pycharm
+.idea/
