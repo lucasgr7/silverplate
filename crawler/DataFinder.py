@@ -4,16 +4,18 @@ import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "silverplate.settings")
 import django
+
 django.setup()
 
 from crawler.models import Data_Ingredient, Data_Way_Cooking
 
-'''
-Class responsible for find Data in the website that is being Crawled
-Using the Python Standard Library HTML PARSER to read HTML data and identify patterns of regular data store on database
-https://docs.python.org/2/library/htmlparser.html
-'''
+
 class IngredientFinder(HTMLParser):
+    """
+    Class responsible for find Data in the website that is being Crawled
+    Using the Python Standard Library HTML PARSER to read HTML data and identify patterns of regular data store on database
+    https://docs.python.org/2/library/htmlparser.html
+    """
     recording = 0
     isMainText = 0
     isRecipeName = 0
@@ -61,7 +63,7 @@ class IngredientFinder(HTMLParser):
             self.countDivs -= 1
             if self.countDivs == 0:
                 self.isMainText = 0
-                self.countUl =  0
+                self.countUl = 0
         elif str(tag) == 'html':
             self.isCooking_Way = 0
         elif str(tag) == 'td' and self.isRecipeName:
@@ -71,14 +73,14 @@ class IngredientFinder(HTMLParser):
 
     def handle_data(self, data):
         if str(data).strip() != "":
-            if self.recording==1:
-                #UL DOS INGREDIENTES
+            if self.recording == 1:
+                # UL DOS INGREDIENTES
                 if self.countUl >= 1 and not self.isCooking_Way:
                     if self.current_recipe != "" and "Receita" in self.current_recipe:
                         self.ingredientes += 1
                         data_save = Data_Ingredient(Ingredient=data, Recipe=self.current_recipe, Group=self.grupo)
                         data_save.save()
-                #F
+                # F
                 elif self.isCooking_Way:
                     if self.current_recipe != "":
                         self.passos += 1
@@ -90,4 +92,3 @@ class IngredientFinder(HTMLParser):
                 self.grupo = data.strip()
                 if self.grupo == 'Modo de preparo':
                     self.isCooking_Way = 1
-

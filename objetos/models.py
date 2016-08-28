@@ -20,13 +20,14 @@ class Image(models.Model):
 
 
 class Recipe(models.Model):
-	LANG=(('EN',"English"),('PT',"Portuguese"))
+    LANG = (('EN', "English"), ('PT', "Portuguese"))
+
     step = models.CharField(max_length=1000)
     ingredients = models.ManyToManyField(Ingredient)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     images = models.ManyToManyField(Image)
     description = models.CharField(max_length=500)
-	language= models.CharField(max_length=10, choices=LANG)
+    language = models.CharField(max_length=10, choices=LANG)
 
     def __str__(self):
         return self.description
@@ -42,17 +43,6 @@ class Comment(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.CharField(max_length=300)
     date_time = models.DateField(default=timezone.now)
-	
-	def __str__(self):
-		return self.descricao
 
-class Recipe_Ingredient(models.Model):
-	ingredient = models.OneToOneField(Ingredient)
-	recipe = models.OneToOneField(Recipe)
-	description = models.CharField(max_length=500)
-
-class Comment(models.Model):
-	creator = models.ForeignKey(User, on_delete=models.CASCADE)
-	message = models.CharField(max_length=300)
-	date_time = models.DateField(default=timezone.now)
->>>>>>> refs/remotes/origin/master
+    def __str__(self):
+        return self.message

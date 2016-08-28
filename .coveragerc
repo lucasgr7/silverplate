@@ -1,0 +1,9 @@
+[run]
+branch = true
+include =
+  objetos/*
+  crawler/*
+omit =
+  */tests/*
+  */migrations/*
+  */apps.py
