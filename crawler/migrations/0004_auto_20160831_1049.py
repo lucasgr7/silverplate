@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crawler', '0003_auto_20160828_1355'),
+        ('crawler', '0003_renames'),
     ]
 
     operations = [
