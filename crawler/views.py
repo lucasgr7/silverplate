@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView
+from django.shortcuts import render
 
 from .models import IngredientSpec, IgnoredWords
 from objetos.models import Ingredient
@@ -11,7 +12,10 @@ class IngredientSpecList(ListView):
     context_object_name = 'ingredients'
     ordering = '-count'
     model = IngredientSpec
-    paginate_by = 20
+    paginate_by = 10
+
+def home(request):
+    return render(request, 'crawler/home.html')
 
 
 def salvar_palavra_ignorar(request):
@@ -20,14 +24,14 @@ def salvar_palavra_ignorar(request):
         word = word.strip()
         if not ignore_word_exists(word):
             update_spec(word)
-            Ignorar = IgnoredWords(Word=word)
+            Ignorar = IgnoredWords(word=word)
             Ignorar.save()
 
             Ingredients = Ingredient.objects.all()
             for ing in Ingredients:
                 clear_specs(ing.description)
 
-    return HttpResponseRedirect('/crawl')
+    return HttpResponseRedirect('/crawl/list')
 
 
 def delete_spec(request):
@@ -51,10 +55,9 @@ def salvar_Ingrediente(request):
 
 
 def update_spec(pal_ignorar):
-    list_ingredients = IngredientSpec.objects.order_by('-Count')
+    list_ingredients = IngredientSpec.objects.order_by('-count')
     for Ingredient in list_ingredients:
-        Ingredient.Word = Ingredient.Word.replace(pal_ignorar, '').strip()
-        print(Ingredient)
+        Ingredient.word = Ingredient.word.replace(pal_ignorar, '').strip()
         Ingredient.save()
 
 
@@ -64,7 +67,6 @@ def ignore_word_exists(word):
 
 def clear_specs(new_ingredient):
     try:
-        print(new_ingredient.title())
         delete_list = IngredientSpec.objects.filter(word=new_ingredient.lower())
         for spec in delete_list:
             spec.delete()

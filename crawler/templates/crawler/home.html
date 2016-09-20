@@ -1,0 +1,26 @@
+{% extends 'silverplate/base.html' %}
+
+{% block content %}
+<h3>Run the scripts to gather data from websites!</h3>
+<hr/>
+<form class="form-horizontal">
+	<div class="row">
+		<div class="col-md-8">
+			<div class="form-group">
+				<label>URL</label>
+				<input type="text" class="form-control" name="url" />
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="form-group">
+				<label>Method</label>
+				<select class="form-control">
+					<option>www.comidaereceitas.com.br (PT-br)</option>
+					<option>Non Existing yet (EN-us)</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<button type="submit" class="btn btn-primary">Send</button>
+</form>
+{% endblock %}
