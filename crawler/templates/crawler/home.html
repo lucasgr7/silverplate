@@ -3,21 +3,33 @@
 {% block content %}
 <h3>Run the scripts to gather data from websites!</h3>
 <hr/>
-<form class="form-horizontal">
+{% if message != Null %}
+<div class="alert alert-dismissible alert-info">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <h4>Information!</h4>
+	<span class="message">{{message}}</span>
+  </div>
+{% endif %}
+<form class="form-horizontal" action="run_crawler" method="POST">
+ 	{% csrf_token %} 
 	<div class="row">
-		<div class="col-md-8">
-			<div class="form-group">
-				<label>URL</label>
-				<input type="text" class="form-control" name="url" />
-			</div>
-		</div>
-		<div class="col-md-4">
-			<div class="form-group">
-				<label>Method</label>
-				<select class="form-control">
-					<option>www.comidaereceitas.com.br (PT-br)</option>
-					<option>Non Existing yet (EN-us)</option>
-				</select>
+		<div class="form-group">
+			<div class="col-md-5">
+					<label>URL</label>
+					<input type="text" class="form-control" name="url" 
+					value="https://www.comidaereceitas.com.br/bolos/bolinho-de-chuva-pratico.html"
+					 id="url" />
+				</div>
+				<div class="col-md-3">
+					<label>Number of access in the page</label>
+					<input type="number" maxlength="3" class="form-control" name="number_access" id="number_access" />
+				</div>
+				<div class="col-md-4">
+					<label>Method</label>
+					<select class="form-control">
+						<option>www.comidaereceitas.com.br (PT-br)</option>
+						<option>Non Existing yet (EN-us)</option>
+					</select>
 			</div>
 		</div>
 	</div>
