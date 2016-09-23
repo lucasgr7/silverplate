@@ -10,6 +10,9 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.description
 
+class IngredientNickname(models.Model):
+    ingredient = models.ForeignKey(Ingredient)
+    nickname = models.CharField(max_length=128, db_index=True)
 
 class Image(models.Model):
     description = models.CharField(max_length=150)

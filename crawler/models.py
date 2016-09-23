@@ -29,6 +29,11 @@ class IngredientSpec(models.Model):
     type = models.CharField(max_length=1)
 
 
+class IngredientNickname(models.Model):
+    ingredient = models.ForeignKey(IngredientSpec)
+    nickname = models.CharField(max_length=128, db_index=True)
+
+
 class IgnoredWords(models.Model):
     """Model to store words to ignore from Ingredient Spec"""
     word = models.CharField(max_length=500, db_index=True)

@@ -40,13 +40,19 @@
                     <td>{{ ingredient.count }}</td>
                     <td>{{ ingredient.type }}</td>
                     <td>
-                        <button type='submit' class='btn btn-info' formaction="/crawl/salvar_ingrediente">Is
-                            Ingredient
+                        <button type='submit' class='btn btn-success' formaction="/crawl/salvar_ingrediente">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Save
                         </button>
-                        <button type='submit' class='btn btn-warning' formaction="/crawl/salvar_palavra_ignorar">Ignore
-                            this word
+                        <button type='submit' class='btn btn-info' formaction="/crawl/salvar_palavra_ignorar">
+                            <span class="glyphicon glyphicon-flag"></span> Ignore
                         </button>
-                        <button type='submit' class='btn btn-danger' formaction="/crawl/delete_spec">Delete</button>
+                        <button type='button' class='btn btn-info'>
+                            <span class="glyphicon glyphicon-link"></span>
+                            Vinculate
+                        </button>
+                        <button type='submit' class='btn btn-danger' formaction="/crawl/delete_spec">
+                            <span class="glyphicon glyphicon-remove"></span> Delete
+                        </button>
                     </td>
                 </form>
             <tr>
@@ -56,14 +62,20 @@
     {% if is_paginated %}
         <div class="pagination">
             <span class="page-links">
+                <h4>
                 {% if page_obj.has_previous %}
-                    <a href="{% url "crawl:ingredient_list" %}?page={{ page_obj.previous_page_number }}">previous</a>
+                    <a href="{% url "crawl:ingredient_list" %}?page={{ page_obj.previous_page_number }}">
+                        <span class="glyphicon glyphicon-step-backward"></span>
+                    </a>
                 {% endif %}
                 <span class="page-current">
                     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
                 </span>
                 {% if page_obj.has_next %}
-                    <a href="{% url "crawl:ingredient_list" %}?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="{% url "crawl:ingredient_list" %}?page={{ page_obj.next_page_number }}">
+                        <span class="glyphicon glyphicon-step-forward"></span>
+                    </a>
+                </h4>
                 {% endif %}
             </span>
         </div>

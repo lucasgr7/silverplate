@@ -9,6 +9,8 @@ from .models import IngredientSpec, IgnoredWords
 from objetos.models import Ingredient
 from crawler.engine import LinkFinder
 from crawler.engine import IngredientFinder
+from crawler.engine import DataMining
+from crawler.models import DataIngredient
 
 
 # Create your views here.
@@ -89,6 +91,7 @@ def run_crawler(request):
             message = 'You must inform the link to start crawling'
         if len(link) > 0:    
             try:
+                #process to gather data from website
                 number_access = int(number_access)
                 response = urllib.request.urlopen(link)
                 html = response.read().decode('utf-8')
@@ -118,6 +121,15 @@ def run_crawler(request):
 
                 print('Found %s ingredients' % DataParser.ingredientes)
                 print('Found %s Steps Cooking' % DataParser.passos)
+                #Mining the data
+                mining = DataMining()
+                ingredients = DataIngredient.objects.all()
+                count = 0
+                for ingredient in ingredients:
+                    mining.analysis(ingredient.ingredient)
+                    count += 1
+
+                mining.save_to_db()
             except Exception as e:
                 message = str(e)            
 
