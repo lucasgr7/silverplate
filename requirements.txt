@@ -1,2 +1,5 @@
 django==1.9.7
 psycopg2
+djangorestframework==3.4.7
+markdown
+django-filter
