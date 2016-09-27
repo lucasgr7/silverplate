@@ -25,7 +25,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for ingredient in ingredients %}
+        {% for ingredient in ingredients  %}
             <tr>
                 <form method='post'>
                     {% csrf_token %}
@@ -46,7 +46,7 @@
                         <button type='submit' class='btn btn-info' formaction="/crawl/salvar_palavra_ignorar">
                             <span class="glyphicon glyphicon-flag"></span> Ignore
                         </button>
-                        <button type='button' class='btn btn-info'>
+                        <button onclick="vinculate( {{ingredient.id}}, '{{ingredient.word}}' )" id="btn_vinculate" type='button' class='btn btn-info'>
                             <span class="glyphicon glyphicon-link"></span>
                             Vinculate
                         </button>
@@ -84,4 +84,48 @@
         <h2>No ingredients</h2>
         <p>If your database if filled, try now run <strong>mining.py</strong></p>
     {% endif %}
+    <div class="modal fade" id="modal_vinculate" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Vinculate : <span id="vinculate_name"></span></h4>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Original name is:</label>
+                        <select class="form-control">
+                        </select>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success">Save changes</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <script>
+    //Load SELECT2
+    var data = [{ id: 0, text: 'enhancement' }, 
+                { id: 1, text: 'bug' }, 
+                { id: 2, text: 'duplicate' }, 
+                { id: 3, text: 'invalid' }, 
+                { id: 4, text: 'wontfix' }];
+    $("select").select2({
+        data: data
+        });
+
+        var id = 0;
+        function vinculate(id, name){
+            $("#modal_vinculate").modal("show");
+            $("#vinculate_name").text(name);
+            this.id = id;
+        };
+    </script>
 {% endblock %}
+

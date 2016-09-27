@@ -13,6 +13,7 @@ from crawler.engine import DataMining
 from crawler.models import DataIngredient
 
 
+
 # Create your views here.
 class IngredientSpecList(ListView):
     context_object_name = 'ingredients'
