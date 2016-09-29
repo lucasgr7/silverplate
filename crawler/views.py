@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.views.generic import ListView
 from django.shortcuts import render
 
 import urllib.request
 
 from .models import IngredientSpec, IgnoredWords
-from objetos.models import Ingredient
+from objetos.models import Ingredient, IngredientNickname
 from crawler.engine import LinkFinder
 from crawler.engine import IngredientFinder
 from crawler.engine import DataMining
@@ -48,7 +49,7 @@ def delete_spec(request):
         spec = IngredientSpec(id=spec_id, word=word)
         spec.delete()
 
-    return HttpResponseRedirect('/crawl')
+    return HttpResponseRedirect('/crawl/list')
 
 
 def salvar_Ingrediente(request):
@@ -58,7 +59,7 @@ def salvar_Ingrediente(request):
         ing.save()
 
         clear_specs(new_ingredient)
-    return HttpResponseRedirect('/crawl')
+    return HttpResponseRedirect('/crawl/list')
 
 
 def update_spec(pal_ignorar):
@@ -135,3 +136,26 @@ def run_crawler(request):
                 message = str(e)            
 
     return render(request, 'crawler/home.html', {'message':message})
+
+def vinculate(request):
+    try:
+        ing_origin = request.POST.get('ingredient_origin').strip()
+        nickname = request.POST.get('nickname').strip()
+        if ing_origin == None or ing_origin == 0:
+            return HttpResponseServerError("Invalid Ingredient id, it can't be null or invalid")
+        if nickname == None or nickname == '':
+            return HttpResponseServerError("Invalid Nickname, it can't be empty")
+
+        ingredient_origin = Ingredient.objects.get(pk=ing_origin)
+        if ingredient_origin == None:
+            return HttpResponseServerError("Ingredient id doest not exist")
+        ingredientNickname = IngredientNickname(ingredient=ingredient_origin,nickname=nickname)
+        ingredientNickname.save()
+        clear_specs(nickname)
+
+        return HttpResponseRedirect('/crawl/list')
+    except:
+        return HttpResponseServerError("Error during process")
+
+
+    

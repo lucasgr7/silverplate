@@ -84,29 +84,29 @@
         <h2>No ingredients</h2>
         <p>If your database if filled, try now run <strong>mining.py</strong></p>
     {% endif %}
-    <div class="modal fade" id="modal_vinculate" role="dialog">
+    <div class="modal fade" id="modal_vinculate" role="dialog" >
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Vinculate : <span id="vinculate_name"></span></h4>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-                <div class="col-md-12">
+          <form method="POST" action="vinculate">
+          {% csrf_token %}
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Vinculate : <span id="vinculate_name"></span></h4>
+              </div>
+              <div class="modal-body">
                     <div class="form-group">
+                        <input type="hidden" value="" name="nickname" id="nickname" />
                         <label>Original name is:</label>
-                        <select class="form-control">
+                        <select style="width: 100%; " class="form-control combo_box_vinculate" name="ingredient_origin" id="ingredient_origin">
                         </select>
                     </div>
-                </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success">Save changes</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
-        </div><!-- /.modal-content -->
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div><!-- /.modal-content -->
+        </form>
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     <script>
@@ -117,14 +117,37 @@
                 { id: 3, text: 'invalid' }, 
                 { id: 4, text: 'wontfix' }];
     $("select").select2({
-        data: data
-        });
+        ajax: {
+                url: "http://127.0.0.1:8000/api/ingredient",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                  return {
+                    description: params.term, // search term
+                    page: params.page
+                  };
+                },
+               processResults: function (data) {
+                    return {
+                        results: $.map(data, function(obj) {
+                            return { id: obj.id, text: obj.description };
+                        })
+                    };
+                },
+                cache: true
+              }
+            }
+
+        );
 
         var id = 0;
         function vinculate(id, name){
             $("#modal_vinculate").modal("show");
             $("#vinculate_name").text(name);
-            this.id = id;
+            $("#nickname").val(name);
+            setTimeout(function(){
+                $("#combo_box_vinculate").focus();
+            },1000)
         };
     </script>
 {% endblock %}

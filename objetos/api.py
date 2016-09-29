@@ -4,4 +4,4 @@ from .models import Ingredient
 class IngredientApi(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ('description','image')
+        fields = ('id', 'description','image')

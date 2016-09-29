@@ -11,6 +11,8 @@ class Ingredient(models.Model):
         return self.description
 
 class IngredientNickname(models.Model):
+    class Meta:
+        unique_together = (('ingredient','nickname'),)
     ingredient = models.ForeignKey(Ingredient)
     nickname = models.CharField(max_length=128, db_index=True)
 
