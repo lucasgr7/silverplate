@@ -13,8 +13,14 @@ class Ingredient(models.Model):
 class IngredientNickname(models.Model):
     class Meta:
         unique_together = (('ingredient','nickname'),)
-    ingredient = models.ForeignKey(Ingredient)
+    ingredient = models.ForeignKey(Ingredient, related_name='nicknames')
     nickname = models.CharField(max_length=128, db_index=True)
+
+    def __unicode__(self):
+        return self.nickname
+        
+    def __str__(self):
+        return self.nickname
 
 class Image(models.Model):
     description = models.CharField(max_length=150)
