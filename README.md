@@ -6,7 +6,7 @@ Working with python, required is to have python installed and to use
 virtualenv. To do so, install them (for Fedora below)
 
 ```sh
-sudo dnf install -y python3 python3-devel python3-pip
+sudo dnf install -y python3 python3-devel python3-pip postgresql-devel rpm-build
 sudo pip install virtualenv
 ```
 
