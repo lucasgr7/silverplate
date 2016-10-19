@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^delete_spec$', views.delete_spec, name='salvar_ingrediente'),
     url(r'^run_crawler$', views.run_crawler, name='run_crawler'),
     url(r'^vinculate$', views.vinculate, name='vinculate'),
+    url(r'^save_recipe$', views.save_recipe, name='save_recipe'),
 ]

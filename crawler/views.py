@@ -1,4 +1,4 @@
--from django.shortcuts import render
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseServerError
 from django.views.generic import ListView
@@ -6,8 +6,9 @@ from django.shortcuts import render
 
 import urllib.request
 
-from .models import IngredientSpec, IgnoredWords
-from objetos.models import Ingredient, IngredientNickname
+from .models import IngredientSpec, IgnoredWords, DataWayCooking
+from objetos.models import Ingredient, IngredientNickname, Recipe, RecipeStep, RecipeIngredient
+from django.contrib.auth.models import User
 from crawler.engine import LinkFinder
 from crawler.engine import IngredientFinder
 from crawler.engine import DataMining
@@ -156,6 +157,51 @@ def vinculate(request):
         return HttpResponseRedirect('/crawl/list')
     except:
         return HttpResponseServerError("Error during process")
+
+def save_recipe(request):
+    user = User.objects.get(pk=1)
+    recipes_raw = DataWayCooking.objects.values('recipe').distinct()
+    for object_recipe in recipes_raw:
+        recipe = str(object_recipe['recipe'])
+        modelRecipe = Recipe(
+            language='PT',
+            title=recipe,
+            description=recipe,
+            creator = user
+            )
+        steps = ''
+        modelRecipe.save()
+
+        steps = DataWayCooking.objects.filter(recipe__contains=recipe).values('description')
+        for step in steps:
+            if step != None:
+                ModelStep = RecipeStep(recipe=modelRecipe, step=step['description'].encode('UTF-8'))
+                ModelStep.save()
+        
+        ingredients = Ingredient.objects.all()
+        ingredientsData = DataIngredient.objects.filter(recipe__contains=recipe).values('ingredient')
+        for dataIngredient in ingredientsData:
+            if dataIngredient != None:
+                for ingredientModel in ingredients:
+                    found = False
+                    if ingredientModel.description.upper() in dataIngredient['ingredient'].upper():
+                        recipe_ingredient = RecipeIngredient(ingredient=ingredientModel,
+                            recipe=modelRecipe,
+                            description=dataIngredient['ingredient'].encode('UTF-8'))
+                        recipe_ingredient.save()
+                        found = True
+                    if not found:
+                        nicknames = IngredientNickname.objects.filter(ingredient_id=ingredientModel.id)
+                        for nick in nicknames:
+                            if nick.nickname.upper() in dataIngredient['ingredient'].upper():
+                                recipe_ingredient = RecipeIngredient(ingredient=ingredientModel,
+                                    recipe=modelRecipe,
+                                    description=dataIngredient['ingredient'].encode('UTF-8'))
+                                recipe_ingredient.save()
+                                found = True
+                    if found:
+                        break
+
 
 
     

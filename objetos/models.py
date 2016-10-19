@@ -34,7 +34,6 @@ class Recipe(models.Model):
     LANG = (('EN', "English"), ('PT', "Portuguese"))
 
     title = models.CharField(max_length=128, db_index=True)
-    step = models.TextField()
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     images = models.ManyToManyField(Image)
@@ -54,7 +53,7 @@ class RecipeIngredient(models.Model):
 class RecipeStep(models.Model):
     '''Class with instructions step by step how to cook'''
     step = models.CharField(max_length=500)
-    recipe = models.OneToOneField(Recipe)
+    recipe = models.ForeignKey(Recipe)
 
 
 class Comment(models.Model):
