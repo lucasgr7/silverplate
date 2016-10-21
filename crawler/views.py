@@ -6,13 +6,12 @@ from django.shortcuts import render
 
 import urllib.request
 
-from .models import IngredientSpec, IgnoredWords, DataWayCooking
+from .models import IngredientSpec, IgnoredWords, DataWayCooking, DataIngredient
 from objetos.models import Ingredient, IngredientNickname, Recipe, RecipeStep, RecipeIngredient
 from django.contrib.auth.models import User
 from crawler.engine import LinkFinder
 from crawler.engine import IngredientFinder
 from crawler.engine import DataMining
-from crawler.models import DataIngredient
 
 
 
@@ -178,7 +177,7 @@ def save_recipe(request):
                 ModelStep = RecipeStep(recipe=modelRecipe, step=step['description'].encode('UTF-8'))
                 ModelStep.save()
         
-        ingredients = Ingredient.objects.all()
+        ingredients = ingredients = Ingredient.objects.extra(select={'length':'Length(description)'}).order_by('-length')
         ingredientsData = DataIngredient.objects.filter(recipe__contains=recipe).values('ingredient')
         for dataIngredient in ingredientsData:
             if dataIngredient != None:
@@ -201,7 +200,13 @@ def save_recipe(request):
                                 found = True
                     if found:
                         break
+    #clean the tables
+    DataWayCooking.objects.all().delete()
+    DataIngredient.objects.all().delete()
+    DataWayCooking.objects.all().delete()
+    IgnoredWords.objects.all().delete()
 
+    return HttpResponseRedirect('/crawl/list')
 
 
     
