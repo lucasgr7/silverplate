@@ -1,6 +1,7 @@
 from rest_framework import status, viewsets, filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
 
 from .models import Ingredient, IngredientNickname, Recipe
 from .api import IngredientApi, RecipeApi
@@ -29,3 +30,28 @@ def list_recipe(request):
 	# print usuarioApi
 	print(api_return)
 	return Response(api_return.data)
+
+@api_view(['POST',])
+def save_ingredient(request):
+	data = []
+	if not request.data.get('description'):
+		data.append({"description" : "This field may not be blank."})
+
+	if not request.data.get('image'):
+		data.append({"image" : "This field may not be blank."})
+
+	if len(data) > 0:
+		return Response(data, status=400)
+	else:
+		ingredient = Ingredient(
+			description=request.data.get('description'),
+			image=request.data.get('image'))
+		ingredient.save()
+
+	if request.data.get('nicknames') != None and len(request.data.get('nicknames')) > 0:
+		for nickname in request.data.get('nicknames'):
+			nick = IngredientNickname(ingredient=ingredient,
+				nickname=nickname)
+			nick.save()
+	
+	return Response(status=200)
