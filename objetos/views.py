@@ -11,10 +11,13 @@ import json
 
 @api_view(['GET',])
 def list_ingredient(request):
-	if request.GET.get('q') != '' and request.GET.get('q') != None:
-		ingredients = Ingredient.objects.filter(description__icontains=request.GET.get('q'))
+	if not request.GET.get('q'):
+		if not request.GET.get('id'):
+			ingredients = Ingredient.objects.all()
+		else:
+			ingredients = Ingredient.objects.filter(id=request.GET.get('id'))
 	else:
-		ingredients = Ingredient.objects.all()
+		ingredients = Ingredient.objects.filter(description__icontains=request.GET.get('q'))
 	api_return = IngredientApi(ingredients, many=True)
 	# print usuarioApi
 	return Response(api_return.data)
@@ -22,10 +25,13 @@ def list_ingredient(request):
 
 @api_view(['GET',])
 def list_recipe(request):
-	if request.GET.get('q') != '' and request.GET.get('q') != None:
-		recipes = Recipe.objects.filter(description__icontains=request.GET.get('q'))
+	if not request.GET.get('q'):
+		if not request.GET.get('id'):
+			recipes = Recipe.objects.filter(id=request.GET.get('id'))
+		else:
+			recipes = Recipe.objects.all()
 	else:
-		recipes = Recipe.objects.all()
+		recipes = Recipe.objects.filter(description__icontains=request.GET.get('q'))
 	api_return = RecipeApi(recipes, many=True)
 	# print usuarioApi
 	print(api_return)
@@ -49,6 +55,54 @@ def save_ingredient(request):
 		ingredient.save()
 
 	if request.data.get('nicknames') != None and len(request.data.get('nicknames')) > 0:
+		for nickname in request.data.get('nicknames'):
+			nick = IngredientNickname(ingredient=ingredient,
+				nickname=nickname)
+			nick.save()
+	
+	return Response(status=200)
+
+@api_view(['DELETE',])
+def delete_ingredient(request):
+	if not request.GET.get('id'):
+		return Response({"return","Id can't be null"}, status=400)
+	else:
+		try:
+			ingredient = Ingredient.objects.get(pk=request.GET.get('id'))
+		except:
+			return Response({"return":"Object does not exists"}, status=400)
+		ingredient.delete()
+		return Response(status=200)
+
+@api_view(['PUT',])
+def update_ingredient(request):
+	data = []
+	if not request.data.get('id'):
+		data.append({"error":"Field id must not be blank"})
+	if not request.data.get('description'):
+		data.append({"error" : "Field description may not be blank."})
+
+	if not request.data.get('image'):
+		data.append({"error" : "Field image may not be blank."})
+
+	if len(data) > 0:
+		return Response(data, status=400)
+	else:
+		try:
+			ingredient = Ingredient(
+				id=request.data.get('id'),
+				description=request.data.get('description'),
+				image=request.data.get('image'))
+
+			ingredient.save()
+		except:
+			return Response({'error':'error trying to save the changes'}, status=400)
+
+	if request.data.get('nicknames') != None and len(request.data.get('nicknames')) > 0:
+		delete_nicknames = IngredientNickname.objects.filter(ingredient_id=ingredient.id)
+		for nickname_saved in delete_nicknames:
+			nickname_saved.delete()
+			
 		for nickname in request.data.get('nicknames'):
 			nick = IngredientNickname(ingredient=ingredient,
 				nickname=nickname)
