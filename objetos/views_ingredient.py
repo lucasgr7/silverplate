@@ -23,19 +23,6 @@ def list_ingredient(request):
 	return Response(api_return.data)
 
 
-@api_view(['GET',])
-def list_recipe(request):
-	if not request.GET.get('q'):
-		if not request.GET.get('id'):
-			recipes = Recipe.objects.filter(id=request.GET.get('id'))
-		else:
-			recipes = Recipe.objects.all()
-	else:
-		recipes = Recipe.objects.filter(description__icontains=request.GET.get('q'))
-	api_return = RecipeApi(recipes, many=True)
-	# print usuarioApi
-	print(api_return)
-	return Response(api_return.data)
 
 @api_view(['POST',])
 def save_ingredient(request):
@@ -70,7 +57,7 @@ def delete_ingredient(request):
 		try:
 			ingredient = Ingredient.objects.get(pk=request.GET.get('id'))
 		except:
-			return Response({"return":"Object does not exists"}, status=400)
+			return Response({"return":"Object does not exists"}, status=404)
 		ingredient.delete()
 		return Response(status=200)
 
@@ -98,11 +85,11 @@ def update_ingredient(request):
 		except:
 			return Response({'error':'error trying to save the changes'}, status=400)
 
-	if request.data.get('nicknames') != None and len(request.data.get('nicknames')) > 0:
-		delete_nicknames = IngredientNickname.objects.filter(ingredient_id=ingredient.id)
-		for nickname_saved in delete_nicknames:
-			nickname_saved.delete()
+	delete_nicknames = IngredientNickname.objects.filter(ingredient_id=ingredient.id)
+	for nickname_saved in delete_nicknames:
+		nickname_saved.delete()
 			
+	if request.data.get('nicknames') != None and len(request.data.get('nicknames')) > 0:
 		for nickname in request.data.get('nicknames'):
 			nick = IngredientNickname(ingredient=ingredient,
 				nickname=nickname)

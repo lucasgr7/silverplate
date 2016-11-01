@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
-
 class Ingredient(models.Model):
     description = models.TextField()
     image = models.CharField(max_length=500)
