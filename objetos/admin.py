@@ -1,10 +1,10 @@
 from django.contrib import admin
-from .models import Ingredient, Image, Recipe, Comment
+from .models import Ingredient, RecipeImage, Recipe, Comment
 
 
 admin.site.register(Ingredient)
 
-admin.site.register(Image)
+admin.site.register(RecipeImage)
 
 
 @admin.register(Recipe)

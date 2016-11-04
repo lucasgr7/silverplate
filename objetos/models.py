@@ -20,27 +20,26 @@ class IngredientNickname(models.Model):
     def __str__(self):
         return self.nickname
 
-class Image(models.Model):
-    description = models.CharField(max_length=150)
-    url = models.URLField()
-
-    def __str__(self):
-        return self.description
-
-
 class Recipe(models.Model):
     LANG = (('EN', "English"), ('PT', "Portuguese"))
 
     title = models.CharField(max_length=128, db_index=True)
     #ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient')
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    images = models.ManyToManyField(Image)
+    #images = models.ManyToManyField(Image)
     description = models.TextField()
     language = models.CharField(max_length=10, choices=LANG)
 
     def __str__(self):
         return self.description
 
+class RecipeImage(models.Model):
+    description = models.CharField(max_length=150)
+    url = models.URLField()
+    recipe = models.ForeignKey(Recipe,related_name='images')
+
+    def __str__(self):
+        return self.description
 
 class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, related_name='ingredient')
@@ -50,6 +49,7 @@ class RecipeIngredient(models.Model):
 
 class RecipeStep(models.Model):
     '''Class with instructions step by step how to cook'''
+    order = models.IntegerField(max_length=3, null=True)
     step = models.CharField(max_length=500)
     recipe = models.ForeignKey(Recipe, related_name='steps')
 

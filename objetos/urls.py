@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^ingredient/delete$', views_ingredient.delete_ingredient, name='delete_ingredient'),
     url(r'^ingredient/update$', views_ingredient.update_ingredient, name='update_ingredient'),
     url(r'^recipe$', views_recipe.list_recipe, name='listar_recipe'),
+    url(r'^recipe/save$', views_recipe.save_recipe, name='save_recipe'),
 ]
