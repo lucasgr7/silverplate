@@ -2,6 +2,7 @@ from rest_framework import status, viewsets, filters
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Ingredient, IngredientNickname, Recipe
 from .api import IngredientApi, RecipeApi
@@ -56,10 +57,12 @@ def delete_ingredient(request):
 	else:
 		try:
 			ingredient = Ingredient.objects.get(pk=request.GET.get('id'))
+		except ObjectDoesNotExist:
+			return Response({"error":"Object not found or not exist!"}, status=404)
 		except:
-			return Response({"return":"Object does not exists"}, status=404)
-		ingredient.delete()
-		return Response(status=200)
+			return Response({"error":"Unexpected error!"}, status=500)
+	ingredient.delete()
+	return Response(status=200)
 
 @api_view(['PUT',])
 def update_ingredient(request):
@@ -82,8 +85,10 @@ def update_ingredient(request):
 				image=request.data.get('image'))
 
 			ingredient.save()
+		except ObjectDoesNotExist:
+			return Response({"error":"Object not found or not exist!"}, status=404)
 		except:
-			return Response({'error':'error trying to save the changes'}, status=400)
+			return Response({"error":"Unexpected error!"}, status=500)
 
 	delete_nicknames = IngredientNickname.objects.filter(ingredient_id=ingredient.id)
 	for nickname_saved in delete_nicknames:
