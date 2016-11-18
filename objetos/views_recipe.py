@@ -22,6 +22,8 @@ def list_recipe(request):
         recipes = recipes.filter(title__icontains=request.GET.get('title'))
     if request.data.get('ingredients'):
         rows_returned = SelectRecipeIdFromIngredient(request.data.getlist('ingredients'), 0)
+        append(rows_returned, SelectRecipeIdFromIngredient(request.data.getlist('ingredients'), 1))
+        append(rows_returned, SelectRecipeIdFromIngredient(request.data.getlist('ingredients'), 2))
         recipes = recipes.filter(id__in=rows_returned)
     api_return = RecipeApi(recipes, many=True)
 
@@ -103,8 +105,15 @@ def save_recipe(request):
 
     return Response(status=200)
 
-def SelectRecipeIdFromIngredient(list_ingredient):
+def SelectRecipeIdFromIngredient(list_ingredient, quantity_missing):
     with connection.cursor() as cursor:
+        where_ingredients = 'WHERE TAB_F.COUNT = {0}'
+        if quantity_missing == 0:
+            where_ingredients = where_ingredients.format(len(list_ingredient))
+        elif quantity_missing == 1:
+            where_ingredients = where_ingredients.format(len(list_ingredient) - 1)
+        elif quantity_missing == 2:
+            where_ingredients = where_ingredients.format(len(list_ingredient) - 2)
         cursor.execute('''
         SELECT TAB_F.ID
         FROM (SELECT COUNT(1) AS COUNT, TAB.RECIPE_ID AS ID
@@ -113,7 +122,14 @@ def SelectRecipeIdFromIngredient(list_ingredient):
                      WHERE INGREDIENT_ID IN ({0})
                      GROUP BY RECIPE_ID, INGREDIENT_ID) TAB
              GROUP BY RECIPE_ID) TAB_F
-        WHERE TAB_F.COUNT = {1}'''.format(str(list_ingredient).replace('[','').replace(']',''), len(list_ingredient))
+        {1}'''.format(str(list_ingredient).replace('[','').replace(']',''), where_ingredients)
         )
         row = cursor.fetchone()
     return row
+
+def append(item, new_itens):
+    if new_itens != None:
+        if item != None:
+            item += new_itens
+        else:
+            item = new_itens
