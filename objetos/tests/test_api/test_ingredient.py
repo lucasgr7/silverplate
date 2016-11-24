@@ -3,10 +3,11 @@ from django.test import Client
 from django.db import transaction
 
 from objetos.models import Ingredient
+from .base_test import BaseTest
 import json
 
 
-class IngredientApiTestGet(TestCase):
+class IngredientApiTestGet(BaseTest):
     c = Client(enforce_csrf_checks=False)
     @classmethod
     def setUpClass(cls):
@@ -20,6 +21,7 @@ class IngredientApiTestGet(TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.clear_test(cls)
         print('end of tests')
 
     def test_ingredient_Get(self):
@@ -34,18 +36,19 @@ class IngredientApiTestGet(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_ingredient_Put(self):
+        ingredient = Ingredient.objects.get(description='Ingredient 1')
         response = self.c.put('/api/ingredient/update', 
-            json.dumps({"id":1,"description":"changed","image":"changed_image"}),
-            content_type='application/json')
+            json.dumps({"id":ingredient.id,"description":"changed","image":"changed_image"}),
+            content_type='application/json', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(len(Ingredient.objects.all()), 3)
-        print(response.content)
         self.assertEqual(response.status_code, 200)
-        ingredient_changed = Ingredient.objects.get(pk=1)
+        ingredient_changed = Ingredient.objects.get(pk=ingredient.id)
         self.assertEqual(ingredient_changed.description, 'changed')
         self.assertEqual(ingredient_changed.image, 'changed_image')
 
     def test_ingredient_Delete(self):
-        response = self.c.delete('/api/ingredient/delete?id=2')
+        ingredient = Ingredient.objects.get(description='Ingredient 2')
+        response = self.c.delete('/api/ingredient/delete?id=%s' % ingredient.id)
         self.assertEqual(len(Ingredient.objects.all()), 2)
         self.assertEqual(response.status_code, 200)
         with self.assertRaises(Exception) as context:

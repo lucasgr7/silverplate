@@ -4,12 +4,15 @@ from django.db import transaction
 from django.contrib.auth.models import User
 
 from objetos.models import Ingredient, Recipe, RecipeImage,RecipeIngredient, RecipeStep
+from .base_test import BaseTest
 import json
 
 
-class RecipeApiTest(TestCase):
+class RecipeApiTest(BaseTest):
     c = Client(enforce_csrf_checks=False)
     rIng2 = {}
+
+
     @classmethod
     def setUpClass(cls):
         #mock
@@ -133,7 +136,8 @@ class RecipeApiTest(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print('end of tests')
+        cls.clear_test(cls)
+        print('ending')
 
     def test_recipe_Get(self):
         response = self.c.get('/api/recipe', {})
