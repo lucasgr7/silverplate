@@ -36,18 +36,38 @@ class RecipeApiPutTest(BaseTest):
     @classmethod
     def tearDownClass(cls):        
         cls.clear_test(cls)
-        print("ending")
 
     def test_recipe_put(self):
         recipe = Recipe.objects.get(title='recipe 1')
         creator = User.objects.get(username='username 01')
-        response = self.c.put('/api/recipe/update',json.dumps({'title':'recipe changed',
+        steps = RecipeStep.objects.filter(recipe__id=recipe.id)
+        ingredients = RecipeIngredient.objects.filter(recipe__id=recipe.id)
+        response = self.c.put('/api/recipe/update',json.dumps({
+            'id' : recipe.id,
+            'title':'recipe changed',
             'creator_id' : creator.id,
             'description' : recipe.description,
-            'language' : recipe.language
+            'language' : recipe.language,
+            'steps' : list(map(lambda x: {'order': x.order, 'step' : x.step}, steps)),
+            'ingredients' : list(
+                    map(lambda x : {'ingredient_id' : x.ingredient_id, 'description' : x.description}, ingredients)
+                )
             }),content_type='application/json',
         HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-        print(response.data)
-
         self.assertEqual(response.status_code, 200)
+
+        recipe_changed = Recipe.objects.get(id=recipe.id)
+        self.assertEqual(recipe_changed.title, 'recipe changed')
+
+    def test_recipe_put_dont_send_id(self):
+        print('not implemented')
+
+    def test_recipe_put_change_ingredient(self):
+        print('not implemented')
+
+    def test_recipe_put_change_step(self):
+        print('not implemented')
+
+    def test_recipe_put_id_dont_exist(self):
+        print('not implemented')
