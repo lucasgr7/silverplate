@@ -133,7 +133,14 @@ def update_recipe(request):
     except:
         return Response({"error":"Unexpected error!"}, status=500)
 
-    recipe = Recipe.objects.get(id=request.data.get('id'))
+
+    try:
+        recipe = Recipe.objects.get(id=request.data.get('id'))
+    except ObjectDoesNotExist:
+        return Response({"error":"Recipe not found or not exist!"}, status=404)
+    except:
+        return Response({"error":"Unexpected error!"}, status=500)
+
     if recipe == None:
         data.append({'error':'Recipe was not found for edit!'})
         return Response(data, status=404)
@@ -153,6 +160,9 @@ def update_recipe(request):
             img.save()
 
     step_count = 0
+    old_steps = RecipeStep.objects.filter(recipe__id=request.data.get('id'))
+    for old_step in old_steps:
+        old_step.delete()
     for step in request.data.get('steps'):
         order = 0
         if not step["order"]:
