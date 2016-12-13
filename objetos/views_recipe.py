@@ -45,9 +45,9 @@ def save_recipe(request):
     if not request.data.get('language'):
         data.append({"error" : "language may not be blank."})
     if not request.data.get('steps'):
-        data.append({"error" : "you must inform the steps of the reipce."})
+        data.append({"error" : "Steps may not be blank."})
     if not request.data.get('ingredients'):
-        data.append({"error" : "you must inform the ingredients of the reipce."})
+        data.append({"error" : "Ingredients may not be blank."})
     
     if len(data) > 0:
         return Response(data, status=400)
