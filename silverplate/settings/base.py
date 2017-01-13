@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'objetos',
     'crawler',
     'rest_framework',
+    'client',
 ]
 
 MIDDLEWARE_CLASSES = [

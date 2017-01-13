@@ -14,6 +14,8 @@ import json
 @api_view(['GET','POST'])
 def list_recipe(request):
     recipes = Recipe.objects.all()
+    if len(recipes) == 0:
+        return Response({'error' : 'there is no recipes registred!'}, status=500)
     if request.GET.get('q'):
         recipes = recipes.filter(description__icontains=request.GET.get('q'))
     if request.GET.get('id'):
@@ -193,6 +195,26 @@ def update_recipe(request):
         ing.save()
 
     return Response(status=200)
+
+
+@api_view(['DELETE',])
+def delete_recipe(request):
+    data = []
+    if not request.data.get('id'):
+        data.append({"error" : "Id may not be blank."})
+
+    try:
+        model = Recipe.objects.get(pk=request.data.get('id'))
+        model.delete()
+    except ObjectDoesNotExist:
+        return Response({"error":"Recipe not found or not exist!"}, status=404)
+    except:
+        return Response({"error":"Error trying to delete this recipe" % ingredient['ingredient_id']}, status=500)
+
+    return Response(status=200)
+
+
+
 
 
 def SelectRecipeIdFromIngredient(list_ingredient, quantity_missing):

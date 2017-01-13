@@ -139,73 +139,37 @@ class RecipeApiTest(BaseTest):
         cls.clear_test(cls)
         print('ending')
 
-    def test_recipe_Get(self):
-        response = self.c.get('/api/recipe', {})
-        self.assertEqual(len(Recipe.objects.all()), len(response.data))
+    def test_delete_success(self):
+        self.assertEqual(len(Recipe.objects.all()), 5)
+        recipe_delete = Recipe.objects.get(title='recipe 1')
+        response = self.c.delete('/api/recipe/delete', json.dumps({'id': recipe_delete.id}),
+            content_type='application/json',
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Recipe.objects.all()), 4)
 
-    def test_recipe_Get_dont_exist(self):
-        response = self.c.get('/api/recipe?id=9999' )
-        self.assertEqual(len(response.data), 0)
+    def test_delete_not_exist(self):
+        self.assertEqual(len(Recipe.objects.all()), 5)
+        recipe_delete = Recipe.objects.get(title='recipe 1')
+        response = self.c.delete('/api/recipe/delete', json.dumps({'id': 9999}),
+            content_type='application/json',
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(Recipe.objects.all()), 5)
 
-    def test_recipe_Get_Id(self):
-        recipe = Recipe.objects.get(title='recipe 1')
-        response = self.c.get('/api/recipe?id=%s' % recipe.id )
-        self.assertEqual(len(response.data), 1)
+    def test_delete_not_exist(self):
+        self.assertEqual(len(Recipe.objects.all()), 5)
+        recipe_delete = Recipe.objects.get(title='recipe 1')
+        #delete success
+        response = self.c.delete('/api/recipe/delete', json.dumps({'id': recipe_delete.id}),
+            content_type='application/json',
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Recipe.objects.all()), 4)
 
-    def test_recipe_Get_title(self):
-        response = self.c.get('/api/recipe?title=recipe 1' )
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.status_code, 200)
-
-    def test_recipe_Get_filter_dont_match(self):
-        response = self.c.get('/api/recipe?id=2&title=recipe 1' )
-        self.assertEqual(len(response.data), 0)
+        #delete already deleted
+        response = self.c.delete('/api/recipe/delete', json.dumps({'id': recipe_delete.id}),
+            content_type='application/json',
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 404)
-
-    def test_recipe_Get_filter_1_ingredient(self):
-        RecipeIngredient2 = RecipeIngredient.objects.get(description='use this ingredient 2')
-        response = self.c.post('/api/recipe', {'ingredients' : [RecipeIngredient2.ingredient.id]} )
-        
-
-        assert_recipe_2 = Recipe.objects.get(title='recipe 2')
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], assert_recipe_2.id)
-        self.assertEqual(response.status_code, 200)
-
-    def test_recipe_Get_filter_2_ingredient(self):
-        rIng1 = RecipeIngredient.objects.get(description='use this ingredient 1 for recipe 3')
-        rIng2 = RecipeIngredient.objects.get(description='use this ingredient 2 for recipe 3')
-        recipe = Recipe.objects.get(title='recipe 3')
-        response = self.c.post('/api/recipe', {'ingredients' : [rIng2.ingredient.id, rIng1.ingredient.id]}) 
-        #print(response.data)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], recipe.id)
-        
-        self.assertEqual(response.status_code, 200)
-
-    def test_recipe_get_filter_2_ingredients_miss_1(self):
-        rIng5 = RecipeIngredient.objects.get(description='use this ingredient 2 for recipe 4')
-        rIng6 = RecipeIngredient.objects.get(description='use this ingredient 3 for recipe 4')
-        recipe = Recipe.objects.get(title='recipe 4')
-
-        response = self.c.post('/api/recipe', {'ingredients' : [rIng5.ingredient.id, rIng6.ingredient.id]}) 
-
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], recipe.id)
-        
-        self.assertEqual(response.status_code, 200)
-
-    def test_recipe_get_filter_2_ingredients_miss_2(self):
-        rIng5 = RecipeIngredient.objects.get(description='use this ingredient 3 for recipe 5')
-        rIng6 = RecipeIngredient.objects.get(description='use this ingredient 4 for recipe 5')
-        recipe = Recipe.objects.get(title='recipe 5')
-
-        response = self.c.post('/api/recipe', {'ingredients' : [rIng5.ingredient.id, rIng6.ingredient.id]}) 
-
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], recipe.id)
-        
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(Recipe.objects.all()), 4)

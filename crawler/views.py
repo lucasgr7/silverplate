@@ -54,6 +54,8 @@ def delete_spec(request):
 
 def salvar_Ingrediente(request):
     if request.method == 'POST':
+
+        #TODO - VERIFY IF THE WORD ALREADY EXISTS
         new_ingredient = request.POST.get('word')
         ing = Ingredient(description=new_ingredient.title())
         ing.save()
