@@ -14,11 +14,11 @@ import json
 def list_ingredient(request):
 	if not request.GET.get('q'):
 		if not request.GET.get('id'):
-			ingredients = Ingredient.objects.all()
+			ingredients = Ingredient.objects.all().order_by('description')
 		else:
-			ingredients = Ingredient.objects.filter(id=request.GET.get('id'))
+			ingredients = Ingredient.objects.filter(id=request.GET.get('id')).order_by('description')
 	else:
-		ingredients = Ingredient.objects.filter(description__icontains=request.GET.get('q'))
+		ingredients = Ingredient.objects.filter(description__icontains=request.GET.get('q')).order_by('description')
 	api_return = IngredientApi(ingredients, many=True)
 	# print usuarioApi
 	return Response(api_return.data)

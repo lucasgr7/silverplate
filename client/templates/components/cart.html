@@ -1,27 +1,74 @@
-<html>
-	<head>
-	{% load static %}
-		<script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
-		<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-		<script src="{% static 'js/bootstrap.min.js' %}"></script>
-		<script src="{% static 'js/select2.min.js' %}"></script>
-		<script src="{% static 'js/vue.js' %}"></script>
-		<link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
-		<title>Silverplate</title>
-	</head>
-<body>
-<div id="app">
 {% verbatim %}
-	{{message}}
-{% endverbatim %}
-</div>
-</body>
-</html>
-<script>
-var app = new Vue({
-	el: '#app',
-	data: {
-		message: 'Hello Vue!'
+Vue.component('cart-item',{
+	props: ['ingredient'],
+
+	template: '<li> \
+	{{ingredient.description}} <button class="btn btn-success" v-on:click="AddItem"> Add </button> \
+	</li> ',
+	methods: {
+		AddItem: function(){
+			this.$emit('AddItem');
+		}
 	}
 })
-</script>
+
+Vue.component('cart', {
+	template: ' \
+	<div id="cart"> \
+		<div v-show="SelectedIngredients.length > 0"> \
+		{{SelectedTitle}}\
+		<li> \
+			<ul v-for="i in SelectedIngredients"> \
+				<cart-item :ingredient="i" v-on:AddItem="Add(i)" ></cart-item> \
+			</ul> \
+		</li> \
+		</div> \
+		{{Title}} \
+		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:blur="LoadData" /> \
+		<li> \
+			<ul v-for="i in Ingredients"> \
+				<cart-item :ingredient="i" v-on:AddItem="Add(i)" ></cart-item> \
+			</ul> \
+		</li> \
+	</div>',
+	data: function(){
+		return {
+			Ingredients: [],
+			SelectedIngredients: [],
+			Title: "Carrinho de ingredients",
+			SelectedTitle: "Selecionados",
+			ingredient_search: ''
+		}
+	},
+	created: function ()  { 
+	    this.LoadData();
+	},
+	methods: {
+		LoadData: function(){
+		var self = this;
+		var q = '';
+		if(self !== undefined && self.ingredient_search !== undefined){
+			q = '?q='+self.ingredient_search;
+		}
+		 $.ajax({
+		            url: 'http://127.0.0.1:8000/api/ingredient' + q,
+		            method: 'GET',
+		            success: function (data) {
+		                self.Ingredients = data;
+		            },
+		            error: function (error) {
+		                alert(JSON.stringify(error));
+		            }
+		        });
+		},
+		Add: function(p){
+			var c = 0;
+			for(var c = 0; c < this.Ingredients.length; c++){
+				if(this.Ingredients[c].id == p.id)
+					this.Ingredients.splice(c, 1);
+			}
+			this.SelectedIngredients.push(p);
+		}
+	}
+});
+{% endverbatim %}
