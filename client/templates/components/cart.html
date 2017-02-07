@@ -1,13 +1,18 @@
 {% verbatim %}
 Vue.component('cart-item',{
-	props: ['ingredient'],
+	props: ['ingredient', 'isAdd'],
 
 	template: '<li> \
-	{{ingredient.description}} <button class="btn btn-success" v-on:click="AddItem"> Add </button> \
+	{{ingredient.description}}  \
+	<button class="btn btn-success" v-if="isAdd" v-on:click="AddItem"> Add </button> \
+	<button class="btn btn-danger" v-if="!isAdd" v-on:click="RemoveItem"> Remove </button> \
 	</li> ',
 	methods: {
 		AddItem: function(){
 			this.$emit('AddItem');
+		},
+		RemoveItem: function(){
+			this.$emit('RemoveItem');
 		}
 	}
 })
@@ -19,21 +24,22 @@ Vue.component('cart', {
 		{{SelectedTitle}}\
 		<li> \
 			<ul v-for="i in SelectedIngredients"> \
-				<cart-item :ingredient="i" v-on:AddItem="Add(i)" ></cart-item> \
+				<cart-item :ingredient="i" v-on:RemoveItem="Remove(i)"  ></cart-item> \
 			</ul> \
 		</li> \
 		</div> \
 		{{Title}} \
-		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:blur="LoadData" /> \
+		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:keyup="Filter" /> \
 		<li> \
-			<ul v-for="i in Ingredients"> \
-				<cart-item :ingredient="i" v-on:AddItem="Add(i)" ></cart-item> \
+			<ul v-for="i in FilteredIngredients"> \
+				<cart-item :ingredient="i" v-on:AddItem="Add(i)" :isAdd="true" ></cart-item> \
 			</ul> \
 		</li> \
 	</div>',
 	data: function(){
 		return {
 			Ingredients: [],
+			FilteredIngredients: [],
 			SelectedIngredients: [],
 			Title: "Carrinho de ingredients",
 			SelectedTitle: "Selecionados",
@@ -55,6 +61,7 @@ Vue.component('cart', {
 		            method: 'GET',
 		            success: function (data) {
 		                self.Ingredients = data;
+		                self.FilteredIngredients = data;
 		            },
 		            error: function (error) {
 		                alert(JSON.stringify(error));
@@ -68,6 +75,31 @@ Vue.component('cart', {
 					this.Ingredients.splice(c, 1);
 			}
 			this.SelectedIngredients.push(p);
+		},
+		Filter: function(){
+			var self = this;
+			if(self.ingredient_search !== undefined && self.ingredient_search !== ""){
+				self.FilteredIngredients = [];
+				for(var x = 0; x < self.Ingredients.length; x++){
+					var i = self.Ingredients[x];
+					if(i.description.toUpperCase().includes(self.ingredient_search.toUpperCase())){
+						self.FilteredIngredients.push(i);
+					}
+				}	
+			}else{
+				self.FilteredIngredients = self.Ingredients;
+			}
+		},
+		Remove: function(i){
+			var self = this;
+			debugger;
+			for(var x = 0;x < self.SelectedIngredients.length; x++){
+				var ing = self.SelectedIngredients[x];
+				if(ing.id === i.id){
+					self.SelectedIngredients.splice(1, x);
+					self.FilteredIngredients.push(ing)
+				}
+			}
 		}
 	}
 });
