@@ -24,7 +24,7 @@ Vue.component('cart', {
 		{{SelectedTitle}}\
 		<li> \
 			<ul v-for="i in SelectedIngredients"> \
-				<cart-item :ingredient="i" v-on:RemoveItem="Remove(i)"  ></cart-item> \
+				<cart-item :ingredient="i" v-on:RemoveItem="Remove(i)"   ></cart-item> \
 			</ul> \
 		</li> \
 		</div> \
@@ -32,7 +32,7 @@ Vue.component('cart', {
 		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:keyup="Filter" /> \
 		<li> \
 			<ul v-for="i in FilteredIngredients"> \
-				<cart-item :ingredient="i" v-on:AddItem="Add(i)" :isAdd="true" ></cart-item> \
+				<cart-item :ingredient="i" v-on:AddItem="Add(i)" :isAdd="true" v-if="i.show" ></cart-item> \
 			</ul> \
 		</li> \
 	</div>',
@@ -60,8 +60,11 @@ Vue.component('cart', {
 		            url: 'http://127.0.0.1:8000/api/ingredient' + q,
 		            method: 'GET',
 		            success: function (data) {
-		                self.Ingredients = data;
-		                self.FilteredIngredients = data;
+		                self.Ingredients = data.map(function(x){
+		                	x.show = true;
+		                	return x;
+		                });
+		                self.FilteredIngredients = self.Ingredients;
 		            },
 		            error: function (error) {
 		                alert(JSON.stringify(error));
@@ -71,8 +74,9 @@ Vue.component('cart', {
 		Add: function(p){
 			var c = 0;
 			for(var c = 0; c < this.Ingredients.length; c++){
-				if(this.Ingredients[c].id == p.id)
-					this.Ingredients.splice(c, 1);
+				var ingredient = this.Ingredients[c];
+				if(ingredient.id == p.id)
+					ingredient.show = false;
 			}
 			this.SelectedIngredients.push(p);
 		},
@@ -92,14 +96,13 @@ Vue.component('cart', {
 		},
 		Remove: function(i){
 			var self = this;
-			debugger;
-			for(var x = 0;x < self.SelectedIngredients.length; x++){
-				var ing = self.SelectedIngredients[x];
-				if(ing.id === i.id){
-					self.SelectedIngredients.splice(1, x);
-					self.FilteredIngredients.push(ing)
-				}
-			}
+			self.SelectedIngredients.splice(self.SelectedIngredients.indexOf(i), 1);
+			
+			var hidden_ingredient = self.FilteredIngredients.find(function(elem){
+				if(elem.id == i.id)
+					return elem;
+			});
+			hidden_ingredient.show = true;
 		}
 	}
 });
