@@ -20,26 +20,22 @@ Vue.component('cart-item',{
 Vue.component('cart', {
 	template: ' \
 	<div id="cart"> \
-		<div v-show="SelectedIngredients.length > 0"> \
-		{{SelectedTitle}}\
-		<li> \
-			<ul v-for="i in SelectedIngredients"> \
-				<cart-item :ingredient="i" v-on:RemoveItem="Remove(i)"   ></cart-item> \
-			</ul> \
-		</li> \
-		</div> \
 		{{Title}} \
 		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:keyup="Filter" /> \
-		<li> \
-			<ul v-for="i in FilteredIngredients"> \
-				<cart-item :ingredient="i" v-on:AddItem="Add(i)" :isAdd="true" v-if="i.show" ></cart-item> \
-			</ul> \
-		</li> \
+		<div v-show="SelectedIngredients.length > 0"> \
+		{{SelectedTitle}}\
+		<ul > \
+			<cart-item v-for="i in SelectedIngredients" :ingredient="i" v-on:RemoveItem="Remove(i)" v-if="i.visible" 	></cart-item> \
+		</ul> \
+		</div> \
+		<hr> \
+		<ul> \
+			<cart-item  v-for="i in Ingredients" :ingredient="i" v-on:AddItem="Add(i)" :isAdd="true" v-if="i.visible && !i.onCart" ></cart-item> \
+		</ul> \
 	</div>',
 	data: function(){
 		return {
 			Ingredients: [],
-			FilteredIngredients: [],
 			SelectedIngredients: [],
 			Title: "Carrinho de ingredients",
 			SelectedTitle: "Selecionados",
@@ -60,11 +56,11 @@ Vue.component('cart', {
 		            url: 'http://127.0.0.1:8000/api/ingredient' + q,
 		            method: 'GET',
 		            success: function (data) {
-		                self.Ingredients = data.map(function(x){
-		                	x.show = true;
+		                self.Ingredients = data.filter(function(x){
+		                	x.visible = true;
+		                	x.onCart = false;
 		                	return x;
 		                });
-		                self.FilteredIngredients = self.Ingredients;
 		            },
 		            error: function (error) {
 		                alert(JSON.stringify(error));
@@ -73,36 +69,50 @@ Vue.component('cart', {
 		},
 		Add: function(p){
 			var c = 0;
-			for(var c = 0; c < this.Ingredients.length; c++){
-				var ingredient = this.Ingredients[c];
-				if(ingredient.id == p.id)
-					ingredient.show = false;
-			}
+			p.visible = true;
 			this.SelectedIngredients.push(p);
+
+			this.Ingredients.map(function(ingredient){
+				if(ingredient.id == p.id){
+					ingredient.onCart = true;	
+				}
+			});
 		},
 		Filter: function(){
 			var self = this;
 			if(self.ingredient_search !== undefined && self.ingredient_search !== ""){
-				self.FilteredIngredients = [];
-				for(var x = 0; x < self.Ingredients.length; x++){
-					var i = self.Ingredients[x];
-					if(i.description.toUpperCase().includes(self.ingredient_search.toUpperCase())){
-						self.FilteredIngredients.push(i);
+				self.Ingredients.map(function(ing){
+					if(ing.description.toUpperCase().includes(self.ingredient_search.toUpperCase()))
+					{
+						ing.visible = true;
 					}
-				}	
+					else{
+						ing.visible = false;
+					}
+				});	
+				self.SelectedIngredients.map(function(ing){
+					if(ing.description.toUpperCase().includes(self.ingredient_search.toUpperCase()))
+					{
+						ing.visible = true;
+					}else{
+						ing.visible = false;
+					}
+				});
 			}else{
-				self.FilteredIngredients = self.Ingredients;
+				self.Ingredients.map(function(ing){
+					ing.visible = true;
+				});
 			}
 		},
 		Remove: function(i){
 			var self = this;
 			self.SelectedIngredients.splice(self.SelectedIngredients.indexOf(i), 1);
 			
-			var hidden_ingredient = self.FilteredIngredients.find(function(elem){
-				if(elem.id == i.id)
-					return elem;
+			var hidden_ingredient = self.Ingredients.filter(function(elem){
+				if(elem.id == i.id){
+					elem.onCart = false;
+				}
 			});
-			hidden_ingredient.show = true;
 		}
 	}
 });
