@@ -22,6 +22,9 @@ Vue.component('cart', {
 	<div id="cart"> \
 		{{Title}} \
 		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:keyup="Filter" /> \
+		<br/> \
+		<br/> \
+		<button type="button" class="btn btn-info btn-block">Pesquisar</button> \
 		<div v-show="SelectedIngredients.length > 0"> \
 		{{SelectedTitle}}\
 		<ul > \
@@ -33,50 +36,20 @@ Vue.component('cart', {
 			<cart-item  v-for="i in Ingredients" :ingredient="i" v-on:AddItem="Add(i)" :isAdd="true" v-if="i.visible && !i.onCart" ></cart-item> \
 		</ul> \
 	</div>',
+	props: ['Ingredients', 'SelectedIngredients'],
 	data: function(){
 		return {
-			Ingredients: [],
-			SelectedIngredients: [],
 			Title: "Carrinho de ingredients",
 			SelectedTitle: "Selecionados",
 			ingredient_search: ''
 		}
 	},
-	created: function ()  { 
-	    this.LoadData();
-	},
 	methods: {
-		LoadData: function(){
-		var self = this;
-		var q = '';
-		if(self !== undefined && self.ingredient_search !== undefined){
-			q = '?q='+self.ingredient_search;
-		}
-		 $.ajax({
-		            url: 'http://127.0.0.1:8000/api/ingredient' + q,
-		            method: 'GET',
-		            success: function (data) {
-		                self.Ingredients = data.filter(function(x){
-		                	x.visible = true;
-		                	x.onCart = false;
-		                	return x;
-		                });
-		            },
-		            error: function (error) {
-		                alert(JSON.stringify(error));
-		            }
-		        });
-		},
 		Add: function(p){
-			var c = 0;
-			p.visible = true;
-			this.SelectedIngredients.push(p);
-
-			this.Ingredients.map(function(ingredient){
-				if(ingredient.id == p.id){
-					ingredient.onCart = true;	
-				}
-			});
+			this.$emit('Add', p);
+		},
+		Remove: function(i){
+			this.$emit('Remove', i);
 		},
 		Filter: function(){
 			var self = this;
@@ -104,16 +77,6 @@ Vue.component('cart', {
 				});
 			}
 		},
-		Remove: function(i){
-			var self = this;
-			self.SelectedIngredients.splice(self.SelectedIngredients.indexOf(i), 1);
-			
-			var hidden_ingredient = self.Ingredients.filter(function(elem){
-				if(elem.id == i.id){
-					elem.onCart = false;
-				}
-			});
-		}
 	}
 });
 {% endverbatim %}

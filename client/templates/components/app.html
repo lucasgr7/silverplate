@@ -1,0 +1,102 @@
+
+Vue.component('app', {
+	template: 
+	'<div> \
+		<div id="app" class="row"> \
+			<div class="col-md-12"> \
+				<h1>Hello world</h1> \
+			</div> \
+		</div> \ \
+		<div class="row"> \
+			<div class="col-md-8"> \
+			</div> \
+			<div class="col-md-4"> \
+				<cart :Ingredients="Ingredients" :SelectedIngredients="SelectedIngredients" v-on:Add="Add" v-on:Remove="Remove"></cart> \
+			</div> \
+		</div> \
+	</div>',
+	data: function(){
+		return {
+			Ingredients: [],
+			SelectedIngredients: [],
+		}
+	},
+	created: function ()  { 
+	    this.LoadData();
+	    var bridge = new Vue();
+	},
+	methods: {
+		LoadData: function(){
+		var self = this;
+		var q = '';
+		if(self !== undefined && self.ingredient_search !== undefined){
+			q = '?q='+self.ingredient_search;
+		}
+		 $.ajax({
+		            url: 'http://127.0.0.1:8000/api/ingredient' + q,
+		            method: 'GET',
+		            success: function (data) {
+		                self.Ingredients = data.filter(function(x){
+		                	x.visible = true;
+		                	x.onCart = false;
+		                	return x;
+		                });
+		            },
+		            error: function (error) {
+		                alert(JSON.stringify(error));
+		            }
+		        });
+		},
+		Add: function(p){
+			var c = 0;
+			p.visible = true;
+			this.SelectedIngredients.push(p);
+
+			this.Ingredients.map(function(ingredient){
+				if(ingredient.id == p.id){
+					ingredient.onCart = true;	
+				}
+			});
+		},
+		Filter: function(){
+			var self = this;
+			if(self.ingredient_search !== undefined && self.ingredient_search !== ""){
+				self.Ingredients.map(function(ing){
+					if(ing.description.toUpperCase().includes(self.ingredient_search.toUpperCase()))
+					{
+						ing.visible = true;
+					}
+					else{
+						ing.visible = false;
+					}
+				});	
+				self.SelectedIngredients.map(function(ing){
+					if(ing.description.toUpperCase().includes(self.ingredient_search.toUpperCase()))
+					{
+						ing.visible = true;
+					}else{
+						ing.visible = false;
+					}
+				});
+			}else{
+				self.Ingredients.map(function(ing){
+					ing.visible = true;
+				});
+			}
+		},
+		Remove: function(i){
+			var self = this;
+			self.SelectedIngredients.splice(self.SelectedIngredients.indexOf(i), 1);
+			
+			var hidden_ingredient = self.Ingredients.filter(function(elem){
+				if(elem.id == i.id){
+					elem.onCart = false;
+				}
+			});
+		},
+		SearchRecipe: function(){
+			var self = this;
+			bridge.$emit('SearchRecipe', self.SelectedIngredients);
+		}
+	}
+});
