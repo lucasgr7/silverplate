@@ -9,6 +9,7 @@ Vue.component('app', {
 		</div> \ \
 		<div class="row"> \
 			<div class="col-md-8"> \
+			   <recipe-list :recipes="recipes"></recipe-list> \
 			</div> \
 			<div class="col-md-4"> \
 				<cart :Ingredients="Ingredients" :SelectedIngredients="SelectedIngredients" v-on:Add="Add" v-on:Remove="Remove"></cart> \
@@ -19,6 +20,7 @@ Vue.component('app', {
 		return {
 			Ingredients: [],
 			SelectedIngredients: [],
+			recipes: [{description: 'uno'},{description: 'dos'}],
 		}
 	},
 	created: function ()  { 

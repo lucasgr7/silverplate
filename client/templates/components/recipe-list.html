@@ -1,0 +1,14 @@
+{% verbatim %}
+Vue.component('recipe-list',{
+	props: ['recipes'],
+
+	template: '<div> \
+		<div v-for="recipe in recipes" > \
+			{{recipe.description}} \
+		</div> \
+	</div>',
+	methods: {
+	}
+})
+
+{% endverbatim %}

@@ -2,11 +2,17 @@
 Vue.component('cart-item',{
 	props: ['ingredient', 'isAdd'],
 
-	template: '<li> \
-	{{ingredient.description}}  \
-	<button class="btn btn-success" v-if="isAdd" v-on:click="AddItem"> Add </button> \
-	<button class="btn btn-danger" v-if="!isAdd" v-on:click="RemoveItem"> Remove </button> \
-	</li> ',
+	template: '<span> \
+	<div class="row"> \
+		<div class="col-xs-7"> \
+			{{ingredient.description}}  \
+		</div> \
+		<div class="col-xs-5"> \
+			<button class="btn btn-success" v-if="isAdd" v-on:click="AddItem"> Add </button> \
+			<button class="btn btn-danger" v-if="!isAdd" v-on:click="RemoveItem"> Remove </button> \
+		</div> \
+	</div> \
+	</span> ',
 	methods: {
 		AddItem: function(){
 			this.$emit('AddItem');
@@ -27,9 +33,7 @@ Vue.component('cart', {
 		<button type="button" class="btn btn-info btn-block">Pesquisar</button> \
 		<div v-show="SelectedIngredients.length > 0"> \
 		{{SelectedTitle}}\
-		<ul > \
-			<cart-item v-for="i in SelectedIngredients" :ingredient="i" v-on:RemoveItem="Remove(i)" v-if="i.visible" 	></cart-item> \
-		</ul> \
+		<cart-item v-for="i in SelectedIngredients" :ingredient="i" v-on:RemoveItem="Remove(i)" v-if="i.visible" 	></cart-item> \
 		</div> \
 		<hr> \
 		<ul> \
