@@ -160,7 +160,7 @@ def vinculate(request):
         return HttpResponseServerError("Error during process")
 
 def save_recipe(request):
-    user = User.objects.get(pk=1)
+    user = User.objects.first()
     recipes_raw = DataWayCooking.objects.values('recipe').distinct()
     for object_recipe in recipes_raw:
         recipe = str(object_recipe['recipe'])

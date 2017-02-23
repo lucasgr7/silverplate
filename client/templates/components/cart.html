@@ -30,9 +30,9 @@ Vue.component('cart', {
 		<input type="text" v-model="ingredient_search" id="ingredient_search" v-on:keyup="Filter" /> \
 		<br/> \
 		<br/> \
-		<button type="button" class="btn btn-info btn-block">Pesquisar</button> \
+		<button type="button" v-on:click="Search" class="btn btn-info btn-block">Pesquisar</button> \
 		<div v-show="SelectedIngredients.length > 0"> \
-		{{SelectedTitle}}\
+		{{SelectedTitle}} \
 		<cart-item v-for="i in SelectedIngredients" :ingredient="i" v-on:RemoveItem="Remove(i)" v-if="i.visible" 	></cart-item> \
 		</div> \
 		<hr> \
@@ -81,6 +81,9 @@ Vue.component('cart', {
 				});
 			}
 		},
+		Search: function(){
+			this.$emit('Search');
+		}
 	}
 });
 {% endverbatim %}

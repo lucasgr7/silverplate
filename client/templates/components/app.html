@@ -12,7 +12,7 @@ Vue.component('app', {
 			   <recipe-list :recipes="recipes"></recipe-list> \
 			</div> \
 			<div class="col-md-4"> \
-				<cart :Ingredients="Ingredients" :SelectedIngredients="SelectedIngredients" v-on:Add="Add" v-on:Remove="Remove"></cart> \
+				<cart :Ingredients="Ingredients" v-on:Search="SearchRecipe" :SelectedIngredients="SelectedIngredients" v-on:Add="Add" v-on:Remove="Remove"></cart> \
 			</div> \
 		</div> \
 	</div>',
@@ -98,7 +98,23 @@ Vue.component('app', {
 		},
 		SearchRecipe: function(){
 			var self = this;
-			bridge.$emit('SearchRecipe', self.SelectedIngredients);
+			console.log(self.SelectedIngredients);
+			$.ajax({
+		            url: 'http://127.0.0.1:8000/api/recipe',
+		            type: 'POST',
+		            data: JSON.stringify({'ingredients': self.SelectedIngredients.map(function(x){
+		            	if(x.id !== undefined && x.id !== null)
+		            		return x.id;
+		            })}),
+			        contentType: "application/json",
+			        dataType: "json",
+		            success: function (data) {
+		            	self.recipes = data;
+		            },
+		            error: function (error) {
+		                alert(JSON.stringify(error));
+		            }
+		        });
 		}
 	}
 });
