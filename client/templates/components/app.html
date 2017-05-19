@@ -98,14 +98,13 @@ Vue.component('app', {
 		},
 		SearchRecipe: function(){
 			var self = this;
-			console.log(self.SelectedIngredients);
 			$.ajax({
 		            url: 'http://127.0.0.1:8000/api/recipe',
 		            type: 'POST',
 		            data: JSON.stringify({'ingredients': self.SelectedIngredients.map(function(x){
 		            	if(x.id !== undefined && x.id !== null)
 		            		return x.id;
-		            })}),
+		            }), quantity_left: 0}),
 			        contentType: "application/json",
 			        dataType: "json",
 		            success: function (data) {

@@ -5,6 +5,11 @@ Vue.component('recipe-list',{
 	template: '<div> \
 		<div v-for="recipe in recipes" > \
 			{{recipe.description}} \
+			<ul> \
+				<li v-for="i in recipe.ingredients"> \
+					<a href="/recipe/?{{i.recipe.id}}"> {{i.description}} - {{i.ingredient.id}}</a> \
+				</li> \
+			</ul> \
 		</div> \
 	</div>',
 	methods: {

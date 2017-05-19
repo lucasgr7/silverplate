@@ -5,7 +5,7 @@ Vue.component('cart-item',{
 	template: '<span> \
 	<div class="row"> \
 		<div class="col-xs-7"> \
-			{{ingredient.description}}  \
+			{{ingredient.description}} - {{ingredient.id}} \
 		</div> \
 		<div class="col-xs-5"> \
 			<button class="btn btn-success" v-if="isAdd" v-on:click="AddItem"> Add </button> \

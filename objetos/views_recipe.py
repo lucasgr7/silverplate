@@ -23,12 +23,15 @@ def list_recipe(request):
     if request.GET.get('title'):
         recipes = recipes.filter(title__icontains=request.GET.get('title'))
     if request.data.get('ingredients'):
-        rows_returned = SelectRecipeIdFromIngredient(request.data['ingredients'], 0)
-        append(rows_returned, SelectRecipeIdFromIngredient(request.data['ingredients'], 1))
-        append(rows_returned, SelectRecipeIdFromIngredient(request.data['ingredients'], 2))
-        print(rows_returned)
-        recipes = recipes.filter(id__in=rows_returned)
-    api_return = RecipeApi(recipes.distinct(), many=True)
+        rows_returned = SelectRecipeIdFromIngredient(request.data['ingredients'], request.data['quantity_left'])
+        pre_recipes = recipes.filter(id__in=rows_returned)
+        recipes = list()
+        
+        for recipe in pre_recipes.distinct():
+            recipe_ingredients = list(map(lambda x: x.ingredient_id, RecipeIngredient.objects.filter(recipe__id=recipe.id)))
+            if(set(recipe_ingredients).issubset(set(request.data['ingredients']))):
+                recipes.append(recipe)
+    api_return = RecipeApi(recipes, many=True)
 
     if len(recipes) == 0:
         return Response([], status=404)
@@ -221,27 +224,24 @@ def delete_recipe(request):
 def SelectRecipeIdFromIngredient(list_ingredient, quantity_missing):
     with connection.cursor() as cursor:
         where_ingredients = 'WHERE TAB_F.COUNT <= {0}'
-        if quantity_missing == 0:
+        if quantity_missing > 0:
+            where_ingredients = where_ingredients.format(len(list_ingredient) - quantity_missing)
+        else:
             where_ingredients = where_ingredients.format(len(list_ingredient))
-        elif quantity_missing == 1:
-            where_ingredients = where_ingredients.format(len(list_ingredient) - 0)
-        elif quantity_missing == 2:
-            where_ingredients = where_ingredients.format(len(list_ingredient) - 0)
         sql = '''
-         SELECT TAB_F.ID
+        SELECT TAB_F.ID
         FROM (SELECT RECIPE_ID AS ID, COUNT(1) AS COUNT FROM OBJETOS_RECIPEINGREDIENT WHERE RECIPE_ID IN (
-        SELECT DISTINCT RECIPE_ID
+            SELECT DISTINCT RECIPE_ID
                       FROM objetos_recipeingredient
-                     WHERE INGREDIENT_ID IN ({0})
-                     GROUP BY RECIPE_ID
-                     )
+                    WHERE INGREDIENT_ID IN ({0})
+                    GROUP BY RECIPE_ID
+                    )
                      GROUP BY RECIPE_ID) TAB_F
         {1}'''.format(str(list_ingredient).replace('[','').replace(']',''), where_ingredients)
         cursor.execute(sql)
         if cursor.rowcount == 0:
             return []
         row = list(map(lambda x: x[0], cursor.fetchall()))
-        print(sql)
     return row
 
 def append(item, new_itens):

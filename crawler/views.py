@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.shortcuts import render
 
 import urllib.request
+import traceback
 
 from .models import IngredientSpec, IgnoredWords, DataWayCooking, DataIngredient
 from objetos.models import Ingredient, IngredientNickname, Recipe, RecipeStep, RecipeIngredient
@@ -117,25 +118,27 @@ def run_crawler(request):
 
                 DataParser = IngredientFinder()
                 size = len(parser.links)
-                for link in parser.links:
-                    size -= 1
-                    response = urllib.request.urlopen(link)
-                    html = response.read().decode('utf-8')
-                    DataParser.feed(html)
+                if len(parser.links) > 0:
+                    for link in parser.links:
+                        size -= 1
+                        response = urllib.request.urlopen(link)
+                        html = response.read().decode('utf-8')
+                        DataParser.feed(html)
 
-                print('Found %s ingredients' % DataParser.ingredientes)
-                print('Found %s Steps Cooking' % DataParser.passos)
-                #Mining the data
-                mining = DataMining()
-                ingredients = DataIngredient.objects.all()
-                count = 0
-                for ingredient in ingredients:
-                    mining.analysis(ingredient.ingredient)
-                    count += 1
+                    print('Found %s ingredients' % DataParser.ingredientes)
+                    print('Found %s Steps Cooking' % DataParser.passos)
+                    #Mining the data
+                    mining = DataMining()
+                    ingredients = DataIngredient.objects.all()
+                    count = 0
+                    for ingredient in ingredients:
+                        mining.analysis(ingredient.ingredient)
+                        count += 1
 
-                mining.save_to_db()
+                    mining.save_to_db()
             except Exception as e:
-                message = str(e)            
+                print(e)
+                message = str(e)           
 
     return render(request, 'crawler/home.html', {'message':message})
 

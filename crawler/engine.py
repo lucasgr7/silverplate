@@ -26,7 +26,7 @@ class LinkFinder(HTMLParser):
         if str(tag) == 'a':
             for attr in attrs:
                 for inn in attr:
-                    if inn != None and 'http' in inn and 'comidaereceitas.com' in inn and not 'whatsapp' in inn and not 'facebook' in inn:
+                    if inn != None and 'http' in inn and 'comidaereceitas.com' in inn and not 'whatsapp' in inn and not 'facebook' in inn and not 'twitter' in inn and not 'google' in inn and not 'pinterest' in inn:
                         self.push(inn)
 
     def push(self, link):
