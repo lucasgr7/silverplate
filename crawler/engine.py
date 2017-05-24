@@ -60,47 +60,47 @@ class IngredientFinder(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if str(tag) == 'div':
             if self.search_class(attrs, 'maintext'):
-                self.isMainText = 1
+                self.isMainText = True
                 self.countDivs = 2
         if str(tag) == 'strong' and self.isMainText:
-            self.isGroup = 1
+            self.isGroup = True
 
-        elif str(tag) == 'td':
-            if self.search_class(attrs, 'item contentheading'):
-                self.isRecipeName = 1
+        elif str(tag) == 'h1' and self.search_class(attrs, 'fn'):
+            print('found recipe name')
+            self.isRecipeName = True
 
 
         elif self.isMainText and str(tag) == 'ul':
-            self.recording = 1
+            self.recording = True
             self.countUl += 1
 
     def search_class(self, array, chave):
         for attr in array:
             for inn in attr:
                 if str(inn) == chave:
-                    return 1
+                    return True
 
     def handle_endtag(self, tag):
         if str(tag) == 'ul' and self.recording:
-            self.recording = 0
+            self.recording = False
         elif str(tag) == 'div' and self.isMainText:
             self.countDivs -= 1
-            if self.countDivs == 0:
-                self.isMainText = 0
-                self.countUl = 0
+            if self.countDivs == False:
+                self.isMainText = False
+                self.countUl = False
         elif str(tag) == 'html':
-            self.isCooking_Way = 0
-        elif str(tag) == 'td' and self.isRecipeName:
-            self.isRecipeName = 0
+            self.isCooking_Way = False
+        elif str(tag) == 'h1' and self.isRecipeName:
+            self.isRecipeName = False
         elif str(tag) == 'strong' and self.isGroup:
-            self.isGroup = 0
+            self.isGroup = False
 
     def handle_data(self, data):
         if str(data).strip() != "":
             if self.recording == 1:
                 # UL DOS INGREDIENTES
                 if self.countUl >= 1 and not self.isCooking_Way:
-                    if self.current_recipe != "" and "Receita" in self.current_recipe:
+                    if self.current_recipe != "":
                         self.ingredientes += 1
                         DataIngredient.objects.create(ingredient=data, recipe=self.current_recipe, group=self.grupo)
                 # F
@@ -110,6 +110,7 @@ class IngredientFinder(HTMLParser):
                         DataWayCooking.objects.create(description=data, recipe=self.current_recipe, group=self.grupo)
             if self.isRecipeName:
                 self.current_recipe = data
+                print(data)
             if self.isGroup:
                 self.grupo = data.strip()
                 if self.grupo == 'Modo de preparo':
